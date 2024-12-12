@@ -2,6 +2,8 @@ import * as dao from "./dao.js";
 import * as modulesDao from "../Modules/dao.js";
 import * as assignmentsDao from "../Assignments/dao.js";
 import * as enrollmentsDao from "../Enrollments/dao.js";
+import * as quizzesDao from "../Quizzes/dao.js";
+import { ObjectId } from "mongodb";
 
 export default function CourseRoutes(app) {
     // Assignments
@@ -71,4 +73,30 @@ export default function CourseRoutes(app) {
         res.json(users);
     };
     app.get("/api/courses/:cid/users", findUsersForCourse);
+
+    const findQuizzesForCourse = async (req, res) => {
+        const { cid } = req.params;
+        const quizzes = await quizzesDao.findQuizzesForCourse(cid);
+        res.json(quizzes);
+    };
+    app.get("/api/courses/:cid/quizzes", findQuizzesForCourse);
+    const findPublishedQuizzesForCourse = async (req, res) => {
+        const { cid } = req.params;
+        const quizzes = await quizzesDao.findPublishedQuizzesForCourse(cid);
+        res.json(quizzes);
+    };
+    app.get(
+        "/api/courses/:cid/publishedQuizzes",
+        findPublishedQuizzesForCourse
+    );
+    const createQuizForCourse = async (req, res) => {
+        const { cid } = req.params;
+        const quiz = {
+            ...req.body,
+            course: cid,
+        };
+        const newQuiz = await quizzesDao.createQuiz(quiz);
+        res.send(newQuiz);
+    };
+    app.post("/api/courses/:cid/quizzes", createQuizForCourse);
 }
